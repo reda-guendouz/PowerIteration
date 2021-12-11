@@ -55,24 +55,33 @@ int main()
     v[3] = 0;
 
     for (i = 0; i < m; i++) { // JUSQU'A CONVERGENCE
+
+        //Creation de vk (parallelisable)
         for(j=1; j<=n; j++)
         {
             vk[j]=0;
+            //(parallelisable)
             for(k=1; k<=n; k++)
             {
+                //Reduction
                 vk[j] = vk[j] + A.tabMatrix[(j-1) * n + k]*v[k];
             }
         }
+
+        //ARGMAX (parallelisable)
         ak=fabs(vk[1]);
         for(j=2; j<=n; j++)
         {
             if((fabs(vk[j]))>ak)
                 ak=fabs(vk[j]);
         }
+
+        //(parallelisable)
         for(j=1; j<=n; j++)
         {
             vk[j]=vk[j]/ak;
         }
+        //(parallelisable)
         for(j=1; j<=n; j++)
         {
             v[j]=vk[j];
