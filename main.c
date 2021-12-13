@@ -44,8 +44,8 @@ void print_matrix(Matrix matrix)
 
 int main()
 {
-    int i,j,k, n = 3, m=5;
-    float v[n+1],vk[n+1],ak;
+    int i,j,k, n = 3, m=1000000;
+    float v[n+1],vk[n+1],ak = 1;
     Matrix A;
     init_matrix(&A, n);
     print_matrix(A);
@@ -53,6 +53,7 @@ int main()
     v[1] = 1;
     v[2] = 0;
     v[3] = 0;
+    
 
     for (i = 0; i < m; i++) { // JUSQU'A CONVERGENCE
 
@@ -68,24 +69,37 @@ int main()
             }
         }
 
+        if (i == 0)
+        {      
+            ak=vk[1];     
+            for(j=2; j<=n; j++)
+            {
+                if(vk[j]>ak)
+                    ak=vk[j];
+            }   
+
+        }
+            
+        //(parallelisable)
+        for(j=1; j<=n; j++)
+        {
+            vk[j]=vk[j]/ak;
+        }
+
+        //(parallelisable)
+        for(j=1; j<=n; j++)
+        {
+            v[j]=vk[j];
+        }
+
         //ARGMAX (parallelisable)
         ak=fabs(vk[1]);
         for(j=2; j<=n; j++)
         {
             if((fabs(vk[j]))>ak)
                 ak=fabs(vk[j]);
-        }
-
-        //(parallelisable)
-        for(j=1; j<=n; j++)
-        {
-            vk[j]=vk[j]/ak;
-        }
-        //(parallelisable)
-        for(j=1; j<=n; j++)
-        {
-            v[j]=vk[j];
-        }
+        }    
+        
     }
     printf("\nValeur propre max : %f",ak);
     printf("\n\nVecteur propre max :\n");
