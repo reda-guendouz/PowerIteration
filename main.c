@@ -1,15 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <omp.h>
+#include "main.h"
 
-typedef struct Matrix Matrix;
-
-struct Matrix
-{
-    int n;
-    float *tabMatrix;
-};
 
 void init_matrix(Matrix *matrix, int parN)
 {
@@ -23,8 +13,9 @@ void init_matrix(Matrix *matrix, int parN)
     {
         for (int j = 1; j <= parN; j++)
         {
-            printf("A[%d][%d]=", i, j);
-            scanf("%f", &matrix->tabMatrix[(i - 1) * parN + j]);
+            /*printf("A[%d][%d]=", i, j);
+            scanf("%f", &matrix->tabMatrix[(i - 1) * parN + j]);*/
+            matrix->tabMatrix[(i - 1) * parN + j] = i*5464 + j*5454;
         }
     }
 }
@@ -45,27 +36,31 @@ void print_matrix(Matrix matrix)
 
 int main()
 {
-    int i, j, k, n = 3, m = 1000000;
-    float v[n + 1], vk[n + 1], ak = 1, mem;
-    double start, end;
+    int i, j, k, n = 3, m = 100000;
+    float v[n + 1], vk[n + 1], ak = 1, mem = 0;
+    double start, end, total = 0;
     Matrix A;
     init_matrix(&A, n);
-    print_matrix(A);
+    //print_matrix(A);
 
     v[1] = 1;
-    v[2] = 0;
-    v[3] = 0;
+    for (int i = 2; i < n; i++)
+    {
+        v[i] = 0;
+    }
 
+    //Debut du timer
     start = omp_get_wtime();
-
     for (i = 0; i < m; i++)
     { // JUSQU'A CONVERGENCE
 
         //Creation de vk (parallelisable)
+        //#pragma omp parallel for num_threads(12)
         for (j = 1; j <= n; j++)
         {
             vk[j] = 0;
             //(parallelisable)
+            //#pragma omp parallel for num_threads(12)
             for (k = 1; k <= n; k++)
             {
                 //Reduction
@@ -83,27 +78,24 @@ int main()
             }
         }
 
-        //(parallelisable)
+        
         for (j = 1; j <= n; j++)
         {
-            vk[j] = vk[j] / ak;
-        }
-
-        //(parallelisable)
-        for (j = 1; j <= n; j++)
-        {
+            vk[j] = vk[j] * (1/ak);
             v[j] = vk[j];
         }
-
+        
         //ARGMAX (parallelisable)
         ak = fabs(vk[1]);
+        //#pragma omp parallel for
         for (j = 2; j <= n; j++)
         {
             if ((fabs(vk[j])) > ak)
                 ak = fabs(vk[j]);
         }
     }
-    mem = 0;
+
+    //Factoriser le vector
     for (i = 1; i <= n; i++)
     {
         if (mem < vk[i])
@@ -116,16 +108,24 @@ int main()
             vk[i] = vk[i] / mem;
         }
     }
-    end = omp_get_wtime();
 
-    printf("\nValeur propre max : %f", ak);
+    
+
+    //Affichage de la solution
+   /* printf("\nValeur propre max : %f", ak);
     printf("\n\nVecteur propre max :\n");
     for (i = 1; i <= n; i++)
     {
         printf("%f\t", vk[i]);
     }
-    printf("\n");
+    printf("\n");*/
+    end = omp_get_wtime();
 
-    printf("Work took %f seconds\n", end - start);
+    //Affichage du temps d'execution
+    printf("Work took %f seconds\n", end-start);
+    //Fin du timer
+    
+
+
     return 0;
 }
