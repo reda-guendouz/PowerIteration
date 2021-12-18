@@ -36,9 +36,9 @@ void print_matrix(Matrix matrix)
 
 int main()
 {
-    int i, j, k, n = 3, m = 100000;
+    int i, j, k, n = 1200, m = 1000;
     float v[n + 1], vk[n + 1], ak = 1, mem = 0;
-    double start, end, total = 0;
+    double start, end;
     Matrix A;
     init_matrix(&A, n);
     //print_matrix(A);
@@ -55,12 +55,12 @@ int main()
     { // JUSQU'A CONVERGENCE
 
         //Creation de vk (parallelisable)
-        //#pragma omp parallel for num_threads(12)
+        //#pragma omp parallel for schedule(static,n/4) num_threads(4)
         for (j = 1; j <= n; j++)
         {
             vk[j] = 0;
             //(parallelisable)
-            //#pragma omp parallel for num_threads(12)
+            //#pragma omp parallel for schedule(static,n/4) num_threads(4)
             for (k = 1; k <= n; k++)
             {
                 //Reduction
@@ -78,7 +78,7 @@ int main()
             }
         }
 
-        
+        //#pragma omp parallel for schedule(static,n/4) num_threads(4)
         for (j = 1; j <= n; j++)
         {
             vk[j] = vk[j] * (1/ak);
@@ -87,11 +87,14 @@ int main()
         
         //ARGMAX (parallelisable)
         ak = fabs(vk[1]);
-        //#pragma omp parallel for
+        //#pragma omp parallel for schedule(static,n/4) num_threads(4)
         for (j = 2; j <= n; j++)
         {
+            //#pragma omp critical
+            {
             if ((fabs(vk[j])) > ak)
                 ak = fabs(vk[j]);
+            }
         }
     }
 
@@ -112,8 +115,8 @@ int main()
     
 
     //Affichage de la solution
-   /* printf("\nValeur propre max : %f", ak);
-    printf("\n\nVecteur propre max :\n");
+    printf("\nValeur propre max : %f\n", ak);
+    /*printf("\n\nVecteur propre max :\n");
     for (i = 1; i <= n; i++)
     {
         printf("%f\t", vk[i]);
