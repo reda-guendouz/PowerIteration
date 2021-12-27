@@ -1,16 +1,16 @@
 CC=gcc 
 CFLAGS= -Wall -fopenmp 
-EXE=para  
-all: main.o     
+EXE=launcher  
+all: launcher.o     
 	rm -f $(EXE)     
-	$(CC) $(CFLAGS) main.o  -o $(EXE)  
+	$(CC) $(CFLAGS) launcher.o  -o $(EXE)  
 
-exe: main.o     
+exe: launcher.o     
 	clear     
 	./$(EXE)  
 
-main.o: main.c main.h     
-	$(CC) $(CFLAGS) -c main.c  
+launcher.o: launcher.c launcher.h     
+	$(CC) $(CFLAGS) -c launcher.c  
 	
 clean:     
 	rm -f *.o     
